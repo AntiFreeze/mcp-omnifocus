@@ -29,10 +29,19 @@ mcp = FastMCP(
 )
 
 
-@mcp.tool
-def list_perspectives() -> list[str]:
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "perspectives": {
+            "type": "array",
+            "items": {"type": "string"}
+        }
+    },
+    "required": ["perspectives"]
+})
+def list_perspectives() -> dict[str, list[str]]:
     """List all perspectives in OmniFocus."""
-    return omnifocus.list_perspectives()
+    return {"perspectives": omnifocus.list_perspectives()}
 
 
 @mcp.tool(output_schema={
@@ -144,7 +153,22 @@ def list_inbox() -> dict[str, list[dict[str, str]]]:
     return {"inbox_tasks": omnifocus.list_perspective_tasks("Inbox")}
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "projectName": {"type": ["string", "null"]},
+        "status": {"type": "string"},
+        "flagged": {"type": "boolean"},
+        "deferDate": {"type": ["string", "null"]},
+        "dueDate": {"type": ["string", "null"]},
+        "dropped": {"type": "boolean"},
+        "completed": {"type": "boolean"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": "string"}
+    }
+})
 def update_task(
     task_id: Annotated[str, Field(description="The ID of the task to update")],
     name: Annotated[str | None, Field(description="The updated task name, None if unchanged")] = None,
@@ -185,19 +209,64 @@ def update_task(
     )
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "projectName": {"type": ["string", "null"]},
+        "status": {"type": "string"},
+        "flagged": {"type": "boolean"},
+        "deferDate": {"type": ["string", "null"]},
+        "dueDate": {"type": ["string", "null"]},
+        "dropped": {"type": "boolean"},
+        "completed": {"type": "boolean"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": "string"}
+    }
+})
 def complete_task(task_id: Annotated[str, Field(description="The ID of the task to complete")]) -> dict[str, str]:
     """Complete a task in OmniFocus."""
     return omnifocus.complete_task(task_id)
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "projectName": {"type": ["string", "null"]},
+        "status": {"type": "string"},
+        "flagged": {"type": "boolean"},
+        "deferDate": {"type": ["string", "null"]},
+        "dueDate": {"type": ["string", "null"]},
+        "dropped": {"type": "boolean"},
+        "completed": {"type": "boolean"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": "string"}
+    }
+})
 def drop_task(task_id: Annotated[str, Field(description="The ID of the task to drop")]) -> dict[str, str]:
     """Drop a task in OmniFocus."""
     return omnifocus.drop_task(task_id)
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "projectName": {"type": ["string", "null"]},
+        "status": {"type": "string"},
+        "flagged": {"type": "boolean"},
+        "deferDate": {"type": ["string", "null"]},
+        "dueDate": {"type": ["string", "null"]},
+        "dropped": {"type": "boolean"},
+        "completed": {"type": "boolean"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": "string"}
+    }
+})
 def activate_task(task_id: Annotated[str, Field(description="The ID of the task to activate")]) -> dict[str, str]:
     """Activate (un-drop or un-complete) a task in OmniFocus."""
     return omnifocus.activate_task(task_id)

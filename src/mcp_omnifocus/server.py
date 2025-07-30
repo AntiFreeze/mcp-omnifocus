@@ -1,3 +1,4 @@
+import json
 from textwrap import dedent
 from typing import Annotated
 
@@ -34,28 +35,113 @@ def list_perspectives() -> list[str]:
     return omnifocus.list_perspectives()
 
 
-@mcp.tool
-def list_projects() -> list[dict[str, str]]:
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "projects": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "status": {"type": "string"},
+                    "flagged": {"type": "boolean"},
+                    "deferDate": {"type": ["string", "null"]},
+                    "dueDate": {"type": ["string", "null"]},
+                    "tags": {"type": "array", "items": {"type": "string"}}
+                }
+            }
+        }
+    },
+    "required": ["projects"]
+})
+def list_projects() -> dict[str, list[dict[str, str]]]:
     """List all projects in OmniFocus."""
-    return omnifocus.list_projects()
+    return {"projects": omnifocus.list_projects()}
 
 
-@mcp.tool
-def list_tags() -> list[dict[str, str]]:
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "available": {"type": "boolean"},
+                    "status": {"type": "string"}
+                }
+            }
+        }
+    },
+    "required": ["tags"]
+})
+def list_tags() -> dict[str, list[dict[str, str]]]:
     """List all tags in OmniFocus."""
-    return omnifocus.list_tags()
+    return {"tags": omnifocus.list_tags()}
 
 
-@mcp.tool
-def list_tasks() -> list[dict[str, str]]:
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "projectName": {"type": ["string", "null"]},
+                    "status": {"type": "string"},
+                    "flagged": {"type": "boolean"},
+                    "deferDate": {"type": ["string", "null"]},
+                    "dueDate": {"type": ["string", "null"]},
+                    "dropped": {"type": "boolean"},
+                    "completed": {"type": "boolean"},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "note": {"type": "string"}
+                }
+            }
+        }
+    },
+    "required": ["tasks"]
+})
+def list_tasks() -> dict[str, list[dict[str, str]]]:
     """List all tasks in OmniFocus. The task full name is the full heirarchy of the task, including parent tags."""
-    return omnifocus.list_tasks()
+    return {"tasks": omnifocus.list_tasks()}
 
 
-@mcp.tool
-def list_inbox() -> list[dict[str, str]]:
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "inbox_tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "projectName": {"type": ["string", "null"]},
+                    "status": {"type": "string"},
+                    "flagged": {"type": "boolean"},
+                    "deferDate": {"type": ["string", "null"]},
+                    "dueDate": {"type": ["string", "null"]},
+                    "dropped": {"type": "boolean"},
+                    "completed": {"type": "boolean"},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "note": {"type": "string"}
+                }
+            }
+        }
+    },
+    "required": ["inbox_tasks"]
+})
+def list_inbox() -> dict[str, list[dict[str, str]]]:
     """List all tasks in the OmniFocus Inbox."""
-    return omnifocus.list_perspective_tasks("Inbox")
+    return {"inbox_tasks": omnifocus.list_perspective_tasks("Inbox")}
 
 
 @mcp.tool
@@ -117,7 +203,22 @@ def activate_task(task_id: Annotated[str, Field(description="The ID of the task 
     return omnifocus.activate_task(task_id)
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "projectName": {"type": ["string", "null"]},
+        "status": {"type": "string"},
+        "flagged": {"type": "boolean"},
+        "deferDate": {"type": ["string", "null"]},
+        "dueDate": {"type": ["string", "null"]},
+        "dropped": {"type": "boolean"},
+        "completed": {"type": "boolean"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "note": {"type": "string"}
+    }
+})
 def create_task(
     name: Annotated[str, Field(description="The name of the task to create")],
     note: Annotated[str | None, Field(description="The note for the task, None if no note")] = None,
@@ -126,7 +227,31 @@ def create_task(
     return omnifocus.create_task(task_name=name, task_note=note)
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "project_tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "projectName": {"type": ["string", "null"]},
+                    "status": {"type": "string"},
+                    "flagged": {"type": "boolean"},
+                    "deferDate": {"type": ["string", "null"]},
+                    "dueDate": {"type": ["string", "null"]},
+                    "dropped": {"type": "boolean"},
+                    "completed": {"type": "boolean"},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "note": {"type": "string"}
+                }
+            }
+        }
+    },
+    "required": ["project_tasks"]
+})
 def list_tasks_by_project(
     project_id: Annotated[str, Field(description="The ID of the project to list tasks for")],
     task_status: Annotated[
@@ -136,14 +261,38 @@ def list_tasks_by_project(
             "of requesting available and unblocked tasks ['Available', 'Next', 'Overdue', 'DueSoon']."
         ),
     ] = None,
-) -> list[dict[str, str]]:
+) -> dict[str, list[dict[str, str]]]:
     """List all tasks in a specific project."""
     if task_status is None:
         task_status = ["Available", "Next", "Overdue", "DueSoon"]
-    return omnifocus.list_tasks_by_project(project_id, task_status=task_status)
+    return {"project_tasks": omnifocus.list_tasks_by_project(project_id, task_status=task_status)}
 
 
-@mcp.tool
+@mcp.tool(output_schema={
+    "type": "object",
+    "properties": {
+        "tag_tasks": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "id": {"type": "string"},
+                    "name": {"type": "string"},
+                    "projectName": {"type": ["string", "null"]},
+                    "status": {"type": "string"},
+                    "flagged": {"type": "boolean"},
+                    "deferDate": {"type": ["string", "null"]},
+                    "dueDate": {"type": ["string", "null"]},
+                    "dropped": {"type": "boolean"},
+                    "completed": {"type": "boolean"},
+                    "tags": {"type": "array", "items": {"type": "string"}},
+                    "note": {"type": "string"}
+                }
+            }
+        }
+    },
+    "required": ["tag_tasks"]
+})
 def list_tasks_by_tag(
     tag_id: Annotated[str, Field(description="The ID of the tag to list tasks for")],
     task_status: Annotated[
@@ -153,11 +302,11 @@ def list_tasks_by_tag(
             "of requesting available and unblocked tasks ['Available', 'Next', 'Overdue', 'DueSoon']."
         ),
     ] = None,
-) -> list[dict[str, str]]:
+) -> dict[str, list[dict[str, str]]]:
     """List all tasks with a specific tag."""
     if task_status is None:
         task_status = ["Available", "Next", "Overdue", "DueSoon"]
-    return omnifocus.list_tasks_by_tag(tag_id, task_status=task_status)
+    return {"tag_tasks": omnifocus.list_tasks_by_tag(tag_id, task_status=task_status)}
 
 
 @mcp.prompt

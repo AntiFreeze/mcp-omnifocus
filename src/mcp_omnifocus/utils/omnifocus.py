@@ -315,15 +315,18 @@ def update_task(
                 task.name = newName;
             }
             
-            if (newNote) {
-                task.note = newNote;
+            if (newNote !== null) {
+                // Handle empty string notes by using single space to avoid AppleScript errors
+                task.note = newNote === "" ? " " : newNote;
             }
             
-            if (newTags) {
+            if (newTags && newTags.length > 0) {
                 newTags.forEach(tagId => {
                     let tag = Tag.byIdentifier(tagId);
                     if (tag) {
                         task.addTag(tag);
+                    } else {
+                        console.log("Warning: Tag with ID '" + tagId + "' not found");
                     }
                 });
             }
@@ -332,6 +335,8 @@ def update_task(
                 let project = Project.byIdentifier(newProjectId);
                 if (project) {
                     moveTasks([task], project);
+                } else {
+                    console.log("Warning: Project with ID '" + newProjectId + "' not found");
                 }
             }
             
